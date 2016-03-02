@@ -110,5 +110,8 @@
     <string name="pref_last_notification">last_notification</string>
 
     <!-- Message that displays if weather information cannot be fetched -->
-    <string name="empty_forecast_list">No Weather Information Available</string>
+    <string name="no_weather_generic">No Weather Information Available</string>
+
+    <!-- Message that displays if weather information cannot be fetched because of no network connectivity -->
+    <string name="no_weather_disconnected">No Weather Information Available. (No network connectivity)</string>
 </resources>

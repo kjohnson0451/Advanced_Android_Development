@@ -23,8 +23,8 @@
 
     <!-- TODO: This needs to be properly centered -->
     <TextView
-        android:id="@+id/empty_list"
-        android:text="@string/empty_forecast_list"
+        android:id="@+id/textview_empty"
+        android:text="@string/no_weather_generic"
         android:textSize="24sp"
         android:gravity="center"
         android:layout_width="match_parent"

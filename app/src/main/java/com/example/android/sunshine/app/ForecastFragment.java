@@ -162,7 +162,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 
         // A message is displayed if weather information cannot be fetched
         // (e.i. if the device lacks a network connection).
-        TextView mEmptyList = (TextView) rootView.findViewById(R.id.empty_list);
+        TextView mEmptyList = (TextView) rootView.findViewById(R.id.textview_empty);
         mListView.setEmptyView(mEmptyList);
 
         // If there's instance state, mine it for useful information.
@@ -259,6 +259,21 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
             // to, do so now.
             mListView.smoothScrollToPosition(mPosition);
         }
+
+        /***********************************************************************************************
+         * If there is no network connectivity, the "No weather information available" message
+         * gets changed to "No weather informaton available (no network connectivity)"
+         ***********************************************************************************************/
+        if (mForecastAdapter.getCount() == 0) {
+            TextView mTextView = (TextView)getView().findViewById(R.id.textview_empty);
+            if(mTextView != null) {
+                if(!Utility.isNetworkAvailable(getActivity())) {
+                    mTextView.setText(R.string.no_weather_disconnected);
+                }
+            }
+        }
+
+
     }
 
     @Override

@@ -25,6 +25,7 @@ import android.preference.PreferenceManager;
 import android.support.annotation.IntDef;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
+import android.support.v7.app.ActionBar;
 import android.text.format.Time;
 import android.util.Log;
 
@@ -71,14 +72,32 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
     private static final int INDEX_MIN_TEMP = 2;
     private static final int INDEX_SHORT_DESC = 3;
 
+    // Enumerated values to define the status of the weather server
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({SERVER_STATUS_OK, SERVER_STATUS_DOWN, SERVER_STATUS_INVALID, SERVER_STATUS_UNKNOWN})
-    public @interface ServerState{}
+    public @interface ServerStatus{}
 
     public static final int SERVER_STATUS_OK = 0;
     public static final int SERVER_STATUS_DOWN = 1;
     public static final int SERVER_STATUS_INVALID = 2;
     public static final int SERVER_STATUS_UNKNOWN = 3;
+
+    /***************************************************************************************************
+     * getServerStatus() and setServerStatus() use SharedPreferences to globally define the status of
+     * the weather server.
+     ***************************************************************************************************/
+    @ServerStatus public int getServerStatus(Context context) {
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
+        @ServerStatus int status = pref.getInt(context.getString(R.string.pref_server_status_key), SERVER_STATUS_UNKNOWN);
+        return status;
+    }
+
+    public void setServerStatus(Context context, @ServerStatus int serverStatus) {
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor prefEditor = pref.edit();
+        prefEditor.putInt(context.getString(R.string.pref_server_status_key), serverStatus);
+        prefEditor.commit();
+    }
 
     public SunshineSyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
@@ -147,6 +166,7 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
 
             if (buffer.length() == 0) {
                 // Stream was empty.  No point in parsing.
+                setServerStatus(getContext(), SERVER_STATUS_DOWN);
                 return;
             }
             forecastJsonStr = buffer.toString();
@@ -155,9 +175,11 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
             Log.e(LOG_TAG, "Error ", e);
             // If the code didn't successfully get the weather data, there's no point in attempting
             // to parse it.
+            setServerStatus(getContext(), SERVER_STATUS_DOWN);
         } catch (JSONException e) {
             Log.e(LOG_TAG, e.getMessage(), e);
             e.printStackTrace();
+            setServerStatus(getContext(), SERVER_STATUS_INVALID);
         } finally {
             if (urlConnection != null) {
                 urlConnection.disconnect();
@@ -319,6 +341,7 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
             }
 
             Log.d(LOG_TAG, "Sync Complete. " + cVVector.size() + " Inserted");
+            setServerStatus(getContext(), SERVER_STATUS_OK);
 
         } catch (JSONException e) {
             Log.e(LOG_TAG, e.getMessage(), e);

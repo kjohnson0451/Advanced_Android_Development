@@ -109,6 +109,9 @@
     <!-- Strings related to Notification preference -->
     <string name="pref_last_notification">last_notification</string>
 
+    <!-- TODO: Add comment -->
+    <string name="pref_server_status_key">server-status</string>
+
     <!-- Message that displays if weather information cannot be fetched -->
     <string name="no_weather_generic">No Weather Information Available</string>
 

@@ -16,9 +16,11 @@
 package com.example.android.sunshine.app;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -40,7 +42,7 @@ import com.example.android.sunshine.app.sync.SunshineSyncAdapter;
 /**
  * Encapsulates fetching the forecast and displaying it as a {@link ListView} layout.
  */
-public class ForecastFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class ForecastFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, SharedPreferences.OnSharedPreferenceChangeListener {
     public static final String LOG_TAG = ForecastFragment.class.getSimpleName();
     private ForecastAdapter mForecastAdapter;
 
@@ -260,20 +262,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
             mListView.smoothScrollToPosition(mPosition);
         }
 
-        /***********************************************************************************************
-         * If there is no network connectivity, the "No weather information available" message
-         * gets changed to "No weather informaton available (no network connectivity)"
-         ***********************************************************************************************/
-        if (mForecastAdapter.getCount() == 0) {
-            TextView mTextView = (TextView)getView().findViewById(R.id.textview_empty);
-            if(mTextView != null) {
-                if(!Utility.isNetworkAvailable(getActivity())) {
-                    mTextView.setText(R.string.no_weather_disconnected);
-                }
-            }
-        }
-
-
+        updateEmptyList();
     }
 
     @Override
@@ -281,10 +270,57 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         mForecastAdapter.swapCursor(null);
     }
 
+    @Override
+    public void onResume() {
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        sp.registerOnSharedPreferenceChangeListener(this);
+        super.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        sp.unregisterOnSharedPreferenceChangeListener(this);
+        super.onPause();
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if(key.equals(getString(R.string.pref_server_status_key)))
+            updateEmptyList();
+    }
+
     public void setUseTodayLayout(boolean useTodayLayout) {
         mUseTodayLayout = useTodayLayout;
         if (mForecastAdapter != null) {
             mForecastAdapter.setUseTodayLayout(mUseTodayLayout);
+        }
+    }
+
+    /***********************************************************************************************
+     * UPDATING THE LIST VIEW
+     * These operations are executed when the Main List needs updating, such as when the device
+     * has loses network connection or when the weather server goes down.
+     ***********************************************************************************************/
+    private void updateEmptyList() {
+        if (mForecastAdapter.getCount() == 0) {
+            TextView emptyTextView = (TextView)getView().findViewById(R.id.textview_empty);
+            if(emptyTextView != null) {
+                int message = R.string.no_weather_generic;
+                @SunshineSyncAdapter.ServerStatus int serverStatus = Utility.getServerStatus(getActivity());
+                switch(serverStatus) {
+                    case SunshineSyncAdapter.SERVER_STATUS_DOWN:
+                        message = R.string.no_weather_server_down;
+                        break;
+                    case SunshineSyncAdapter.SERVER_STATUS_INVALID:
+                        message = R.string.no_weather_server_error;
+                        break;
+                    default:
+                        if (!Utility.isNetworkAvailable(getActivity()))
+                            message = R.string.no_weather_disconnected;
+                }
+                emptyTextView.setText(message);
+            }
         }
     }
 }

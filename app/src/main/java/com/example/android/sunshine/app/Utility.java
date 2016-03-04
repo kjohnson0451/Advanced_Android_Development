@@ -22,6 +22,8 @@ import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
 import android.text.format.Time;
 
+import com.example.android.sunshine.app.sync.SunshineSyncAdapter;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -259,6 +261,15 @@ public class Utility {
                 context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
         return (networkInfo != null && networkInfo.isConnected());
+    }
 
+    /**
+     * @param context used to get the shared preferences
+     * @return the current state of the server as defined in the shared preferences
+     */
+    static public @SunshineSyncAdapter.ServerStatus int getServerStatus(Context context) {
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
+        @SunshineSyncAdapter.ServerStatus int status = pref.getInt(context.getString(R.string.pref_server_status_key), SunshineSyncAdapter.SERVER_STATUS_UNKNOWN);
+        return status;
     }
 }

@@ -83,15 +83,9 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
     public static final int SERVER_STATUS_UNKNOWN = 3;
 
     /***************************************************************************************************
-     * getServerStatus() and setServerStatus() use SharedPreferences to globally define the status of
-     * the weather server.
+     * setServerStatus() uses SharedPreferences to globally define the status of the weather server.
+     * getServerStatus() is defined in Utility.java.
      ***************************************************************************************************/
-    @ServerStatus public int getServerStatus(Context context) {
-        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
-        @ServerStatus int status = pref.getInt(context.getString(R.string.pref_server_status_key), SERVER_STATUS_UNKNOWN);
-        return status;
-    }
-
     public void setServerStatus(Context context, @ServerStatus int serverStatus) {
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor prefEditor = pref.edit();

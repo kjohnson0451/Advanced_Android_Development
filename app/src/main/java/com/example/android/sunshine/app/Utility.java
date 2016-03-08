@@ -272,4 +272,15 @@ public class Utility {
         @SunshineSyncAdapter.ServerStatus int status = pref.getInt(context.getString(R.string.pref_server_status_key), SunshineSyncAdapter.SERVER_STATUS_UNKNOWN);
         return status;
     }
+
+    /**
+     * Resets the server status to SERVER_STATUS_UNKNOWN.
+     * @param context used to get the shared preferences
+     */
+    static public void resetServerStatus(Context context){
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor prefEditor = pref.edit();
+        prefEditor.putInt(context.getString(R.string.pref_server_status_key), SunshineSyncAdapter.SERVER_STATUS_UNKNOWN);
+        prefEditor.apply();
+    }
 }

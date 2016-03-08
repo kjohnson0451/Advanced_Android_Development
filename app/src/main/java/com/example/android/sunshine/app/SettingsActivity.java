@@ -113,6 +113,9 @@ public class SettingsActivity extends PreferenceActivity
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if ( key.equals(getString(R.string.pref_location_key)) ) {
+            // If the location preferences ever get changed, the Server Status in our
+            // Shared Preferences must be reset to SERVER_STATUS_UNKNOWN
+            Utility.resetServerStatus(getApplicationContext());
             SunshineSyncAdapter.syncImmediately(this);
         } else if ( key.equals(getString(R.string.pref_units_key)) ) {
             // units have changed. update lists of weather entries accordingly

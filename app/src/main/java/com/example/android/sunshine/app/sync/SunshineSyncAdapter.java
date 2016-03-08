@@ -74,13 +74,14 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
 
     // Enumerated values to define the status of the weather server
     @Retention(RetentionPolicy.SOURCE)
-    @IntDef({SERVER_STATUS_OK, SERVER_STATUS_DOWN, SERVER_STATUS_INVALID, SERVER_STATUS_UNKNOWN})
+    @IntDef({SERVER_STATUS_OK, SERVER_STATUS_DOWN, SERVER_STATUS_INVALID, SERVER_STATUS_UNKNOWN, LOCATION_STATUS_INVALID})
     public @interface ServerStatus{}
 
     public static final int SERVER_STATUS_OK = 0;
     public static final int SERVER_STATUS_DOWN = 1;
     public static final int SERVER_STATUS_INVALID = 2;
     public static final int SERVER_STATUS_UNKNOWN = 3;
+    public static final int LOCATION_STATUS_INVALID = 4;
 
     /***************************************************************************************************
      * setServerStatus() uses SharedPreferences to globally define the status of the weather server.
@@ -232,8 +233,30 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
         final String OWM_DESCRIPTION = "main";
         final String OWM_WEATHER_ID = "id";
 
+        final String OWM_RESPONSE_CODE = "cod";
+
         try {
             JSONObject forecastJson = new JSONObject(forecastJsonStr);
+
+            /*******************************************************************************************
+             * Reads the OpenWeatherMap response code and sets the server status appropriately
+             * depending on the response.
+             *******************************************************************************************/
+            if ( forecastJson.has(OWM_RESPONSE_CODE)) {
+                int errorCode = forecastJson.getInt(OWM_RESPONSE_CODE);
+
+                switch(errorCode) {
+                    case HttpURLConnection.HTTP_OK:
+                        break;
+                    case HttpURLConnection.HTTP_NOT_FOUND:
+                        setServerStatus(getContext(), LOCATION_STATUS_INVALID);
+                        return;
+                    default:
+                        setServerStatus(getContext(), SERVER_STATUS_INVALID);
+                        return;
+                }
+            }
+
             JSONArray weatherArray = forecastJson.getJSONArray(OWM_LIST);
 
             JSONObject cityJson = forecastJson.getJSONObject(OWM_CITY);

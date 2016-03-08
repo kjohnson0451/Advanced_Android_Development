@@ -117,4 +117,5 @@
     <string name="no_weather_disconnected">No Weather Information Available. (No network connectivity)</string>
     <string name="no_weather_server_down">No Weather Information Available. (The weather server is down)</string>
     <string name="no_weather_server_error">No Weather Information Available. (The server is malfunctioning)</string>
+    <string name="no_weather_location_error">No Weather Information Available. (The server does not recognize your location settings)</string>
 </resources>

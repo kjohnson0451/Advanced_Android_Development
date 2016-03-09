@@ -95,6 +95,25 @@ public class SettingsActivity extends PreferenceActivity
             if (prefIndex >= 0) {
                 preference.setSummary(listPreference.getEntries()[prefIndex]);
             }
+            /*******************************************************************************************
+             * Detects any potential error having to do with the location the user submits in settings.
+             * An error message is displayed in field summary.
+             *******************************************************************************************/
+        } else if (key.equals(getString(R.string.pref_location_key))) {
+            @SunshineSyncAdapter.ServerStatus int status = Utility.getServerStatus(this);
+            switch (status) {
+                case SunshineSyncAdapter.SERVER_STATUS_OK:
+                    preference.setSummary(stringValue);
+                    break;
+                case SunshineSyncAdapter.SERVER_STATUS_UNKNOWN:
+                    preference.setSummary(getString(R.string.pref_location_unknown_description, stringValue));
+                    break;
+                case SunshineSyncAdapter.LOCATION_STATUS_INVALID:
+                    preference.setSummary(getString(R.string.pref_location_error_description, stringValue));
+                    break;
+                default:
+
+            }
         } else {
             // For other preferences, set the summary to the value's simple string representation.
             preference.setSummary(stringValue);

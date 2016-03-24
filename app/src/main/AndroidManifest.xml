@@ -13,6 +13,13 @@
      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
      See the License for the specific language governing permissions and
      limitations under the License.
+
+     Server API Key
+     AIzaSyB35hGEkCxyfiYsTpisTi5TU6smeI6IjEU
+
+     Sender ID
+     573492816428
+
  -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.android.sunshine.app" >
